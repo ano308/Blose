@@ -1,0 +1,35 @@
+version: '3'
+services:
+    nginix-loadbalancer:
+        image: jwilder/nginx-proxy:latest
+        volumes:
+            - //var/run/docker.sock:/tmp/docker.sock:ro
+        environment:
+            - DEFAULT_HOST=proxy.example
+        ports:
+            - "3000:80" 
+        depends_on:
+            - web-app
+    db:
+        build: ./database
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: gigatec
+            MYSQL_ROOT_PASSWORD: 5lovDive6!
+        restart: always
+     
+    web-app:
+        build:
+          context: ./web-app
+        environment:
+            DB_HOST: db
+            DB_USER: root
+            DB_PASSWORD: 5lovDive6!
+            DB_NAME: gigatec
+            VIRTUAL_HOST: proxy.example
+        ports:
+            - "8080"
+        depends_on:
+            - db
+        restart: always
+        
